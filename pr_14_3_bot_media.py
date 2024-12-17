@@ -64,12 +64,14 @@ async def start_com(message: Message):
 # async def main_menu(message: Message):
 #     await message.answer('Этот бот делает расчет необходимого кол-ва калорий. '
 #                          'Бот применяет Формулу Миффлина-Сан Жеора – это одна из последних формул расчета калорий '
-#                          'для оптимального похудения или сохранения нормального веса. Для расчета жмем "Рассчитать".')
+#                          'для оптимального похудения или сохранения нормального веса. Для расчета жмем "Рассчитать".',
+#                          reply_markup=kb)
 
 
 @dp.message(F.text == 'Рассчитать')
 async def main_menu(message: Message):
     await message.answer('Выберите опцию', reply_markup=kb_menu)
+    await message.answer('Если хотите вернуться, выберите иную опцию из основного меню".', reply_markup=kb)
 
 
 @dp.message(F.text == 'Купить')
@@ -86,7 +88,7 @@ async def get_buying_list(message: Message):
 
 
 @dp.callback_query(F.data == 'product_buying')
-async def set_age(call: CallbackQuery):
+async def send_confirm_message(call: CallbackQuery):
     await call.message.answer('Вы успешно приобрели продукт!')
     await call.answer()
 
