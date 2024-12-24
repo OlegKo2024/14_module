@@ -24,10 +24,10 @@ button3 = KeyboardButton(text='Купить')
 button_calc = InlineKeyboardButton(text='Рассчитать норму калорий', callback_data='calories')
 button_func = InlineKeyboardButton(text='Формулы расчёта', callback_data='formulas')
 
-button_pr1 = InlineKeyboardButton(text='Product1', callback_data='product_buying')
-button_pr2 = InlineKeyboardButton(text='Product2', callback_data='product_buying')
-button_pr3 = InlineKeyboardButton(text='Product3', callback_data='product_buying')
-button_pr4 = InlineKeyboardButton(text='Product4', callback_data='product_buying')
+button_pr1 = InlineKeyboardButton(text='Продукт 1', callback_data='product_buying')
+button_pr2 = InlineKeyboardButton(text='Продукт 2', callback_data='product_buying')
+button_pr3 = InlineKeyboardButton(text='Продукт 3', callback_data='product_buying')
+button_pr4 = InlineKeyboardButton(text='Продукт 4', callback_data='product_buying')
 
 kb = ReplyKeyboardMarkup(
     keyboard=[
