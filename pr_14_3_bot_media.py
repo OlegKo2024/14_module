@@ -10,14 +10,15 @@ import asyncio
 import dotenv
 import os
 
+
 dotenv.load_dotenv()
-api = os.getenv("BOT_TOKEN")
+# api = os.getenv("BOT_TOKEN")
 bot = Bot(token=api)
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
-button1 = KeyboardButton(text='Рассчитать')
-button2 = KeyboardButton(text='Информация')
+button1 = KeyboardButton(text='Информация')
+button2 = KeyboardButton(text='Рассчитать')
 button3 = KeyboardButton(text='Купить')
 
 button_calc = InlineKeyboardButton(text='Рассчитать норму калорий', callback_data='calories')
@@ -38,13 +39,15 @@ kb = ReplyKeyboardMarkup(
 
 kb_menu = InlineKeyboardMarkup(
     inline_keyboard=[
-        [button_calc, button_func]
+        [button_calc, button_func],
+        [InlineKeyboardButton(text='... или выбираем набор продуктов питания?', callback_data='go_back_to_menu')]
     ]
 )
 
 kb_products = InlineKeyboardMarkup(
     inline_keyboard=[
-        [button_pr1, button_pr2, button_pr3, button_pr4]
+        [button_pr1, button_pr2, button_pr3, button_pr4],
+        [InlineKeyboardButton(text='... или рассчитаем необходимое кол-во калорий?', callback_data='go_back_to_menu')]
     ]
 )
 
@@ -60,18 +63,17 @@ async def start_com(message: Message):
     await message.answer('Привет! Я бот помогающий твоему здоровью.', reply_markup=kb)
 
 
-# @dp.message(F.text == 'Информация')
-# async def main_menu(message: Message):
-#     await message.answer('Этот бот делает расчет необходимого кол-ва калорий. '
-#                          'Бот применяет Формулу Миффлина-Сан Жеора – это одна из последних формул расчета калорий '
-#                          'для оптимального похудения или сохранения нормального веса. Для расчета жмем "Рассчитать".',
-#                          reply_markup=kb)
+@dp.message(F.text == 'Информация')
+async def main_menu(message: Message):
+    await message.answer('Этот бот:\n'
+                         '- делает расчет необходимого кол-ва калорий. Для расчета жмем "Рассчитать"\n'
+                         '- предлагает эксклюзивный набор продуктов питания. Для покупки жмем "Купить".',
+                         reply_markup=kb)
 
 
 @dp.message(F.text == 'Рассчитать')
 async def main_menu(message: Message):
     await message.answer('Выберите опцию', reply_markup=kb_menu)
-    await message.answer('Если хотите вернуться, выберите иную опцию из основного меню".', reply_markup=kb)
 
 
 @dp.message(F.text == 'Купить')
@@ -89,7 +91,15 @@ async def get_buying_list(message: Message):
 
 @dp.callback_query(F.data == 'product_buying')
 async def send_confirm_message(call: CallbackQuery):
-    await call.message.answer('Вы успешно приобрели продукт!')
+    await call.message.answer(f'{call.from_user.username}, Вы успешно приобрели продукт!')
+    print(f'{call.from_user.username}, Вы успешно приобрели продукт!')
+    await call.message.answer('Выберите иную опцию из основного меню.', reply_markup=kb)
+    await call.answer()
+
+
+@dp.callback_query(F.data == 'go_back_to_menu')
+async def go_back_to_menu(call: CallbackQuery):
+    await call.message.answer('Выберите иную опцию из основного меню.', reply_markup=kb)
     await call.answer()
 
 
@@ -106,7 +116,7 @@ async def inst(call):
 
 @dp.callback_query(F.data == 'calories')
 async def set_age(call: CallbackQuery, state: FSMContext):
-    await call.message.answer('Введите свой возраст, г: ')
+    await call.message.answer('Введите свой возраст, полных лет:')
     await state.set_state(UserState.age)
     await call.answer()
 
@@ -114,14 +124,14 @@ async def set_age(call: CallbackQuery, state: FSMContext):
 @dp.message(UserState.age)
 async def set_growth(message: Message, state: FSMContext):
     await state.update_data(age=message.text)
-    await message.answer('Введите свой рост, см: ')
+    await message.answer('Введите свой рост, см:')
     await state.set_state(UserState.growth)
 
 
 @dp.message(UserState.growth)
 async def set_weight(message: Message, state: FSMContext):
     await state.update_data(growth=message.text)
-    await message.answer('Введите свой вес, кг: ')
+    await message.answer('Введите свой вес, кг:')
     await state.set_state(UserState.weight)
 
 
@@ -130,9 +140,10 @@ async def set_calories(message: Message, state: FSMContext):
     await state.update_data(weight=message.text)
     data = await state.get_data()
     calories_norm = 10 * int(data['weight']) + 6.5 * int(data['growth']) - 5 * int(data['age']) + 5
-    await message.answer(f'Ваша норма калорий (кал) в сутки: {calories_norm}')
-    print(f'Ваша норма калорий (кал) в сутки: {calories_norm}')
+    await message.answer(f'{message.from_user.username}, Ваша норма калорий (кал) в сутки: {calories_norm}')
+    print(f'{message.from_user.username}, Ваша норма калорий (кал) в сутки: {calories_norm}')
     await state.clear()
+    await message.answer('Выберите иную опцию из основного меню.', reply_markup=kb)
 
 
 @dp.message()

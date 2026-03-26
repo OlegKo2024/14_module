@@ -27,6 +27,7 @@ def get_all_products():
     products = cursor.fetchall()
     return products
 
+
 if __name__ == '__main__':
     initiate_db()
     for i in range(1, 5):

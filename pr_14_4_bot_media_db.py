@@ -12,7 +12,7 @@ import os
 from crud_functions import get_all_products
 
 dotenv.load_dotenv()
-api = os.getenv("BOT_TOKEN")
+# api = os.getenv("BOT_TOKEN")
 bot = Bot(token=api)
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
